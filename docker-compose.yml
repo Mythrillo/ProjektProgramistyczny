@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: app
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+    ports:
+      - 80:80
+    environment:
+      POSTGRESS_USER: ${POSTGRESS_USER}
+      POSTGRESS_PASSWORD: ${POSTGRESS_PASSWORD}
+      POSTGRESS_URL: ${POSTGRESS_URL}
+      POSTGRESS_DB_NAME: ${POSTGRESS_DB_NAME}
