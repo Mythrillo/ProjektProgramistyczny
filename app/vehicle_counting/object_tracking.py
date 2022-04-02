@@ -1,4 +1,5 @@
 import gc
+import logging
 from datetime import datetime
 
 import cv2
@@ -7,6 +8,8 @@ import numpy as np
 from models import vehicles
 from schemas import vehicle_schemas
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger("")
 
 
 def _get_centroid(x: int, y: int, w: int, h: int) -> tuple[int, int]:
@@ -20,6 +23,7 @@ def _get_centroid(x: int, y: int, w: int, h: int) -> tuple[int, int]:
 
 
 def _update_vehicle_count(db: Session, data: vehicle_schemas.UpdateVehicleCount) -> vehicle_schemas.UpdateVehicleCount:
+    logger.debug("Updating vehicle count")
     data = vehicles.VehicleCount(**data)
     vehicle_count = db.query(vehicles.VehicleCount).filter(vehicles.VehicleCount.id == data.id).first()
     if not vehicle_count:
@@ -32,12 +36,14 @@ def _update_vehicle_count(db: Session, data: vehicle_schemas.UpdateVehicleCount)
         db.refresh(vehicle_count)
         return vehicle_count
     except Exception:
+        logger.debug(f"Failed to update vehicle count for id: {data.id}")
         return
 
 
 def count_vehicles(contents: bytes, id: int, db: Session) -> None:
     """Method to count number of vehicles in a given video."""
     frames = iio.imread(contents, index=None, format_hint=".mp4")
+    logger.debug("Converted contents to frames")
     del contents
     gc.collect()
     min_contour_width = 40
