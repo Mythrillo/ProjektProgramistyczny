@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -12,6 +13,12 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# overwrite alembic.ini db urls from the config file
+DATABASE_URL = (
+    f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@"
+    f"{os.environ['POSTGRES_URL']}:{os.environ['POSTGRES_PORT']}/{os.environ['POSTGRES_DB_NAME']}"
+)
+config.set_section_option("alembic", "sqlalchemy.url", DATABASE_URL)
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel

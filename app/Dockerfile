@@ -23,4 +23,4 @@ ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 ENV POSTGRES_URL=${POSTGRES_URL}
 ENV POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
 ENV POSTGRES_PORT=${POSTGRES_PORT}
-CMD uvicorn main:app --host 0.0.0.0 --port $PORT
+CMD ./wait-for-it.sh $POSTGRES_URL:$POSTGRES_PORT ; alembic upgrade head ; uvicorn main:app --host 0.0.0.0 --port $PORT

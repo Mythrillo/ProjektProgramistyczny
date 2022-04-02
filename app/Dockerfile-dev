@@ -14,4 +14,4 @@ COPY . .
 ARG PORT
 ENV PORT=${PORT:-80}
 
-CMD uvicorn main:app --host 0.0.0.0 --port $PORT --reload
+CMD ./wait-for-it.sh db:5432 ; alembic upgrade head ; uvicorn main:app --host 0.0.0.0 --port $PORT --reload
