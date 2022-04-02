@@ -13,7 +13,7 @@ logger = logging.getLogger("")
 
 
 def _get_centroid(x: int, y: int, w: int, h: int) -> tuple[int, int]:
-    """Get center of a rectangle"""
+    """Get center of a rectangle."""
     x1 = int(w / 2)
     y1 = int(h / 2)
 
@@ -23,6 +23,7 @@ def _get_centroid(x: int, y: int, w: int, h: int) -> tuple[int, int]:
 
 
 def _update_vehicle_count(db: Session, data: vehicle_schemas.UpdateVehicleCount) -> vehicle_schemas.UpdateVehicleCount:
+    """Update the vehicle count and status in the database."""
     logger.debug("Updating vehicle count")
     data = vehicles.VehicleCount(**data)
     vehicle_count = db.query(vehicles.VehicleCount).filter(vehicles.VehicleCount.id == data.id).first()
@@ -40,7 +41,7 @@ def _update_vehicle_count(db: Session, data: vehicle_schemas.UpdateVehicleCount)
         return
 
 
-def count_vehicles(contents: bytes, id: int, db: Session) -> None:
+def count_vehicles(contents: bytes, y_line_position: int, id: int, db: Session) -> None:
     """Method to count number of vehicles in a given video."""
     frames = iio.imread(contents, index=None, format_hint=".mp4")
     logger.debug("Converted contents to frames")
@@ -49,7 +50,6 @@ def count_vehicles(contents: bytes, id: int, db: Session) -> None:
     min_contour_width = 40
     min_contour_height = 40
     offset = 10
-    line_height = frames.shape[1] - 200
     matches = []
     cars = 0
     frame1 = frames[0]
@@ -72,7 +72,7 @@ def count_vehicles(contents: bytes, id: int, db: Session) -> None:
             centroid = _get_centroid(x, y, w, h)
             matches.append(centroid)
             for x, y in matches:
-                if y < line_height + offset and y > line_height - offset:
+                if y < y_line_position + offset and y > y_line_position - offset:
                     cars += 1
                     matches.remove((x, y))
         frame1 = frame2

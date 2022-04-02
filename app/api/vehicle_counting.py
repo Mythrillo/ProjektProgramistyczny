@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, UploadFile
 from models import vehicles
 from schemas import vehicle_schemas
 from services import get_db
@@ -31,8 +31,13 @@ def get_vehicle_count(id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/vehicles/", tags=["vehicles"], status_code=202, response_model=vehicle_schemas.CreateVehicleCount)
-async def start_vehicle_counting(file: UploadFile, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+async def start_vehicle_counting(
+    file: UploadFile,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    y_line_position: int = Body(..., embed=True),
+):
     contents = await file.read()
     vehicle_count = _create_vehicle_count(db, {"status": "processing"})
-    background_tasks.add_task(count_vehicles, contents, vehicle_count.id, db)
+    background_tasks.add_task(count_vehicles, contents, y_line_position, vehicle_count.id, db)
     return vehicle_count

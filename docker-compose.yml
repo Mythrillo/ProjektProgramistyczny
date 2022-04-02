@@ -5,7 +5,7 @@ services:
       context: app
       dockerfile: Dockerfile-dev
       args:
-        PORT: 8000
+        PORT: 80
     volumes:
       - ./app:/app
     ports:
