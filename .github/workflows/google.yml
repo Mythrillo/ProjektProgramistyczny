@@ -1,8 +1,19 @@
-- name: Build and publish image to GCR
-  uses: carbonchain/action-container-registry@v1.1
-  with:
-    project_id: projektprogramistyczny
-    dockerfile: /app/Dockerfile
-    image: gcr.io/projektprogramistyczny/fastapi-project
-    service_account_key: ${{secrets.GCLOUD_AUTH}}
-    build_args: POSTGRES_USER=${{secrets.POSTGRES_USER}},POSTGRES_PASSWORD=${{secrets.POSTGRES_PASSWORD}},POSTGRES_URL=${{secrets.POSTGRES_URL}},POSTGRES_DB_NAME=${{secrets.POSTGRES_DB_NAME}},POSTGRES_PORT=${{secrets.POSTGRES_PORT}}
+name: Push to GCR GitHub Action
+on:
+  push:
+    branches:
+      - heroku
+jobs:
+  build-and-push-to-gcr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: google-github-actions/setup-gcloud@master
+      - uses: RafikFarhad/push-to-gcr-github-action@v4
+        with:
+          gcloud_service_key: ${{ secrets.GCLOUD_AUTH }}
+          registry: gcr.io
+          project_id: projektprogramistyczny
+          image_name: fastapi-project
+          context: app
+          build_args: POSTGRES_USER=${{secrets.POSTGRES_USER}},POSTGRES_PASSWORD=${{secrets.POSTGRES_PASSWORD}},POSTGRES_URL=${{secrets.POSTGRES_URL}},POSTGRES_DB_NAME=${{secrets.POSTGRES_DB_NAME}},POSTGRES_PORT=${{secrets.POSTGRES_PORT}}
