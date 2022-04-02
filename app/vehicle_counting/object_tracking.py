@@ -1,3 +1,4 @@
+import gc
 from datetime import datetime
 
 import cv2
@@ -37,6 +38,8 @@ def _update_vehicle_count(db: Session, data: vehicle_schemas.UpdateVehicleCount)
 def count_vehicles(contents: bytes, id: int, db: Session) -> None:
     """Method to count number of vehicles in a given video."""
     frames = iio.imread(contents, index=None, format_hint=".mp4")
+    del contents
+    gc.collect()
     min_contour_width = 40
     min_contour_height = 40
     offset = 10
@@ -46,15 +49,15 @@ def count_vehicles(contents: bytes, id: int, db: Session) -> None:
     frame1 = frames[0]
     for i in range(1, len(frames)):
         frame2 = frames[i]
-        diff = cv2.absdiff(frame1, frame2)
-        gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (5, 5), 0)
-        _, th = cv2.threshold(blur, 20, 255, cv2.THRESH_BINARY)
-        dilated = cv2.dilate(th, np.ones((3, 3)))
+        contours = cv2.absdiff(frame1, frame2)
+        contours = cv2.cvtColor(contours, cv2.COLOR_BGR2GRAY)
+        contours = cv2.GaussianBlur(contours, (5, 5), 0)
+        _, contours = cv2.threshold(contours, 20, 255, cv2.THRESH_BINARY)
+        contours = cv2.dilate(contours, np.ones((3, 3)))
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
 
-        closing = cv2.morphologyEx(dilated, cv2.MORPH_CLOSE, kernel)
-        contours, h = cv2.findContours(closing, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours = cv2.morphologyEx(contours, cv2.MORPH_CLOSE, kernel)
+        contours, h = cv2.findContours(contours, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for i, c in enumerate(contours):
             (x, y, w, h) = cv2.boundingRect(c)
             contour_valid = w >= min_contour_width and h >= min_contour_height
