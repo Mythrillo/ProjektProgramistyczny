@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "projekt-programistyczny" #Must be unique in Heroku
+          heroku_email: "mikolaj.kaluza1999@gmail.com"
+          appdir: "app"
+          usedocker: true
+          docker_build_args: |
+            PORT
+        env:
+          POSTGRES_USER: ${{ POSTGRESS_USER }}
+          POSTGRES_PASSWORD: ${{ POSTGRESS_PASSWORD }}
+          POSTGRES_URL: ${{ POSTGRESS_URL }}
+          POSTGRES_DB_NAME: ${{ POSTGRESS_DB_NAME }}
+          POSTGRES_PORT: ${{ POSTGRES_PORT }}

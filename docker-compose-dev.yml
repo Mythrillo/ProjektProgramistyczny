@@ -4,6 +4,8 @@ services:
     build:
       context: app
       dockerfile: Dockerfile-dev
+      args:
+        PORT: 8089
     volumes:
       - ./app:/app
     ports:
@@ -13,6 +15,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_URL: db
       POSTGRES_DB_NAME: app_db
+      POSTGRES_PORT: 5432
     depends_on:
       - db
   db:
