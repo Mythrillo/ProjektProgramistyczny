@@ -1,6 +1,8 @@
 # Project info
 This project is a simple API written with FASTAPI framework. The api itself counts cars in a given `.mp4` video.
 
+For creating and managing migrations Alembic is used. For connecting with the database SQLAlchemy is used.
+
 # Live Demo
 Live demo is available at: https://projekt-programistyczny.herokuapp.com/
 # Development
